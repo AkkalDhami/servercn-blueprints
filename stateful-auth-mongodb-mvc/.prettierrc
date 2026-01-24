@@ -5,5 +5,5 @@
     "trailingComma": "none",
     "bracketSameLine": false,
     "arrowParens": "avoid",
-    "endOfLine": "lf"
+    "endOfLine": "auto"
 }

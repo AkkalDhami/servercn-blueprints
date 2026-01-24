@@ -6,10 +6,12 @@ import { configureGracefulShutdown } from "./utils/shutdown";
 
 const port = env.PORT || 9000;
 
-connectDB()
+connectDB();
 
 const server = app.listen(port, () => {
   logger.info(`[server]: Server is running at http://localhost:${port}`);
-})
+});
 
 configureGracefulShutdown(server);
+
+const a = () => 3;
