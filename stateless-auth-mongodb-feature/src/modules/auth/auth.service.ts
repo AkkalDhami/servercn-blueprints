@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { NextFunction } from "express";
 import User from "./user.model";
 import { hashPassword, verifyPassword } from "./auth.helpers";
@@ -8,7 +9,6 @@ import {
   REFRESH_TOKEN_EXPIRY
 } from "./auth.constants";
 
-import mongoose from "mongoose";
 import { OtpService } from "../otp/otp.service";
 import { SignupUserType } from "./auth.validator";
 import { ApiError } from "../../shared/errors/api-error";

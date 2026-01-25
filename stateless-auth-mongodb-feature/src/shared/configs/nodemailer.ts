@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import "dotenv/config";
 import env from "./env";
-import { ApiError } from "../utils/api-error";
 
 let transporter: nodemailer.Transporter | null = null;
 

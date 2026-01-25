@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -7,7 +7,6 @@ import {
 } from "../utils/jwt";
 import { ApiError } from "../errors/api-error";
 import { logger } from "../utils/logger";
-import env from "../configs/env";
 import { generateHashedToken } from "../helpers/token.helpers";
 import { UserRequest } from "../../@types/global";
 import RefreshToken from "../../modules/auth/refresh-token.model";

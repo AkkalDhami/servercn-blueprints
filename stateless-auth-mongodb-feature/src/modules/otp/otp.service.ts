@@ -3,8 +3,16 @@ import { OTPType } from "./otp.types";
 import User from "../auth/user.model";
 import { ApiError } from "../../shared/errors/api-error";
 import Otp from "./otp.model";
-import { NEXT_OTP_DELAY, OTP_CODE_LENGTH, OTP_EXPIRES_IN, OTP_MAX_ATTEMPTS } from "./otp.constants";
-import { generateHashedToken, generateOTP } from "../../shared/helpers/token.helpers";
+import {
+  NEXT_OTP_DELAY,
+  OTP_CODE_LENGTH,
+  OTP_EXPIRES_IN,
+  OTP_MAX_ATTEMPTS
+} from "./otp.constants";
+import {
+  generateHashedToken,
+  generateOTP
+} from "../../shared/helpers/token.helpers";
 import { logger } from "../../shared/utils/logger";
 import { sendEmail } from "../../shared/utils/send-mail";
 import { AuthService } from "../auth/auth.service";

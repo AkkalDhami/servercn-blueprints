@@ -120,7 +120,7 @@ export class AuthService {
     const hashedRefreshToken = generateHashedToken(refreshToken);
 
     await RefreshToken.create({
-      userId: user._id,
+      userId: new mongoose.Types.ObjectId(user._id),
       tokenHash: hashedRefreshToken,
       expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
     });
