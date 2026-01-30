@@ -66,7 +66,9 @@ router.post(
 router.get("/profile", verifyAuthentication, getUserProfile);
 
 router.get("/sessions", verifyAuthentication, getUserSessions);
+
 router.delete("/sessions", verifyAuthentication, deleteAllUserSessions);
+
 router.delete(
   "/sessions/:sessionId",
   validateObjectId("sessionId"),
