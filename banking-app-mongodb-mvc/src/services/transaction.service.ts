@@ -1,12 +1,14 @@
 import { AccountService } from "./account.service";
 import Account from "../models/account.model";
-import Transaction from "../models/transaction.model";
+import Transaction, { ITransaction } from "../models/transaction.model";
 import { ApiError } from "../utils/api-error";
 import { CreateTransactionType } from "../validators/transaction";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { Ledger } from "../models/ledger.model";
 import { sendEmail } from "../utils/send-mail";
 import { AuthService } from "./auth.service";
+import { UserProfile } from "../types/user";
+import { IPagination } from "../types/account";
 
 export class TranscationService {
   static async createTransaction(
@@ -343,5 +345,114 @@ export class TranscationService {
     } finally {
       session.endSession();
     }
+  }
+
+  static async getTransactionHistory({
+    currentUserId,
+    accountId,
+    page,
+    limit,
+    fromDate,
+    toDate
+  }: {
+    currentUserId: string;
+    accountId: string;
+    fromDate?: string;
+    toDate?: string;
+    page: number;
+    limit: number;
+  }): Promise<{ history: ITransaction[]; pagination: IPagination }> {
+    const currentUserAccount: UserProfile =
+      await AuthService.getUserProfile(currentUserId);
+
+    if (
+      !currentUserAccount ||
+      !currentUserAccount.accounts ||
+      currentUserAccount.accounts?.length === 0
+    ) {
+      throw ApiError.unauthorized("Unauthorized access");
+    }
+
+    const isAuthorized: boolean = currentUserAccount?.accounts.some(
+      acc => acc._id.toString() === accountId.toString()
+    );
+
+    if (!isAuthorized) {
+      throw ApiError.unauthorized("Unauthorized access");
+    }
+
+    const skip = (page - 1) * limit;
+
+    const query: any = {
+      $or: [
+        { fromAccountId: new Types.ObjectId(accountId) },
+        { toAccountId: new Types.ObjectId(accountId) }
+      ]
+    };
+
+    const from =
+      fromDate && !isNaN(new Date(fromDate).getTime())
+        ? new Date(fromDate)
+        : null;
+
+    const to =
+      toDate && !isNaN(new Date(toDate).getTime()) ? new Date(toDate) : null;
+
+    if (from || to) {
+      query.createdAt = {};
+      if (from) query.createdAt.$gte = from;
+      if (to) query.createdAt.$lte = to;
+    }
+
+    const history = await Transaction.aggregate([
+      { $match: query },
+
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "fromAccountId",
+          foreignField: "_id",
+          as: "fromAccount",
+          pipeline: [{ $project: { _id: 1, type: 1, currency: 1 } }]
+        }
+      },
+
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "toAccountId",
+          foreignField: "_id",
+          as: "toAccount",
+          pipeline: [{ $project: { _id: 1, type: 1, currency: 1 } }]
+        }
+      },
+
+      {
+        $project: {
+          _id: 1,
+          fromAccount: { $arrayElemAt: ["$fromAccount", 0] },
+          toAccount: { $arrayElemAt: ["$toAccount", 0] },
+          amount: 1,
+          status: 1,
+          createdAt: 1,
+          updatedAt: 1
+        }
+      }
+    ]);
+
+    const total = await Transaction.countDocuments(query);
+
+    return {
+      history,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    };
   }
 }

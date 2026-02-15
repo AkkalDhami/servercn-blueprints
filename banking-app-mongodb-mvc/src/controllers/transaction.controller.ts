@@ -44,3 +44,31 @@ export const createSystemInitialTransaction = AsyncHandler(
     );
   }
 );
+
+//? transaction history
+export const getTransactionHistory = AsyncHandler(
+  async (req: UserRequest, res: Response, next: NextFunction) => {
+    const accountId = req.params.accountId as string;
+
+    if (!req?.user?._id) {
+      return next(ApiError.unauthorized("User not authenticated"));
+    }
+
+    const { page = 1, limit = 5, fromDate, toDate } = req.query;
+
+    const { history, pagination } =
+      await TranscationService.getTransactionHistory({
+        currentUserId: req?.user?._id,
+        accountId,
+        page: Number(page),
+        limit: Number(limit),
+        fromDate: fromDate as string,
+        toDate: toDate as string
+      });
+
+    return ApiResponse.ok(res, "Transaction history fetched successfully", {
+      history,
+      pagination
+    });
+  }
+);

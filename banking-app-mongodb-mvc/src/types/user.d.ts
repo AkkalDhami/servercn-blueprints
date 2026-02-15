@@ -33,3 +33,10 @@ export interface IUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type UserProfile = Pick<
+  IUser,
+  "_id" | "name" | "email" | "avatar" | "role" | "isEmailVerified"
+> & {
+  accounts?: IAccount[];
+};

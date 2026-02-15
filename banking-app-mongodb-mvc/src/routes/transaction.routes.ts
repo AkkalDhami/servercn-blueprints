@@ -4,10 +4,12 @@ import { checkUserAccountRestriction } from "../middlewares/user-account-restric
 import { validateRequest } from "../middlewares/validate-request";
 import {
   createSystemInitialTransaction,
-  createTransaction
+  createTransaction,
+  getTransactionHistory
 } from "../controllers/transaction.controller";
 import { createTransactionSchema } from "../validators/transaction";
 import { verifySystemUser } from "../middlewares/verify-system-user";
+import { validateObjectId } from "../middlewares/validate-id";
 
 const router = Router();
 
@@ -26,6 +28,14 @@ router.post(
   checkUserAccountRestriction,
   validateRequest(createTransactionSchema),
   createTransaction
+);
+
+router.get(
+  "/history/:accountId",
+  verifyAuthentication,
+  checkUserAccountRestriction,
+  validateObjectId("accountId"),
+  getTransactionHistory
 );
 
 export default router;
